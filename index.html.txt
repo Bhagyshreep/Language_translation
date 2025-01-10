@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translation & Speech</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://www.managedoutsource.com/wp-content/uploads/2014/10/electronic-data-processing.jpg');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8); /* semi-transparent background */
+            padding: 30px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            color: black; /* Set the headline color to black */
+        }
+
+        /* Label and form input text color */
+        label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: black; /* Labels in black */
+        }
+
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+
+        /* Button styles */
+        button {
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Result Section */
+        .result {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result h2 {
+            font-size: 1.8rem;
+            color: yellow; /* Output title text in yellow */
+        }
+
+        .result p {
+            font-size: 1.5rem;
+            color: blue; /* Translated text in blue */
+        }
+
+        audio {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #777;
+        }
+
+        /* Speech recognition status text */
+        #status {
+            font-size: 1rem;
+            color: black; /* Status text in black */
+        }
+    </style>
+    <script>
+        // Function to start speech recognition
+        function startSpeechRecognition() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'en-US';
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                document.getElementById('status').innerText = "Listening...";
+            };
+
+            recognition.onresult = (event) => {
+                const result = event.results[0][0].transcript;
+                document.getElementById('inputText').value = result;
+            };
+
+            recognition.onend = () => {
+                document.getElementById('status').innerText = "Stopped listening";
+            };
+
+            recognition.start();
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Language Translation</h1>
+
+        <form method="POST">
+            <!-- Text Input Section -->
+            <label for="inputText">Enter text:</label><br>
+            <textarea name="inputText" rows="4" cols="50" id="inputText"></textarea><br><br>
+
+            <!-- Language Selection -->
+            <label for="srcLang">Source Language (e.g., 'en'):</label><br>
+            <input type="text" name="srcLang" required><br><br>
+
+            <label for="destLang">Target Language (e.g., 'hi'):</label><br>
+            <input type="text" name="destLang" required><br><br>
+
+            <!-- Button to input via text -->
+            <button type="submit" name="textInput">Translate & Convert to Speech</button><br><br>
+
+            <!-- Button to input via speech -->
+            <button type="button" onclick="startSpeechRecognition()">Speak Input</button><br><br>
+
+            <!-- Status of speech recognition -->
+            <p id="status"></p>
+        </form>
+
+        {% if translated_text %}
+        <div class="result">
+            <h2>Translated Text:</h2>
+            <p>{{ translated_text }}</p>
+            <audio controls>
+                <source src="{{ url_for('static', filename=audio_file) }}" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+            <br><br>
+            <a href="{{ url_for('download_audio') }}">Download Audio</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
